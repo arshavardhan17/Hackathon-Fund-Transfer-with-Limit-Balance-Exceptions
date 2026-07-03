@@ -16,9 +16,9 @@ java -cp target/classes com.fundtransfer.cli.FundTransferApp
 | 1 — Models & exceptions | ✓ |
 | 2 — Precondition validation | ✓ |
 | 3 — Atomic transfer + rollback | ✓ |
-| 4 — Interactive CLI | pending |
+| 4 — Interactive CLI | ✓ |
 
 ## Docs
 
-- [Design & validation rules](docs/DESIGN.md)
+- [CLI commands](docs/CLI.md)
 - [Phase breakdown](docs/PHASES.md)

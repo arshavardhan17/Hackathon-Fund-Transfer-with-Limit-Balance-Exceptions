@@ -47,7 +47,7 @@ Config defaults (`TransferConfig`):
 
 ```
 com.fundtransfer
-├── cli          FundTransferApp
+├── cli          FundTransferApp, FundTransferCli
 ├── config       TransferConfig
 ├── exception    custom exceptions
 ├── model        Account, Beneficiary, TransferRequest

@@ -26,7 +26,8 @@
 
 ## Phase 4 — Interactive CLI
 
-- Commands: add beneficiary, transfer, balance, exit
-- Demo scenarios for hackathon review
+- `FundTransferCli` — command loop: balance, add-beneficiary, transfer, daily, exit
+- Seeded demo accounts on startup
+- See [CLI.md](CLI.md) for commands and demo scenarios
 
 **Commit:** `feat: add interactive CLI for fund transfers`
