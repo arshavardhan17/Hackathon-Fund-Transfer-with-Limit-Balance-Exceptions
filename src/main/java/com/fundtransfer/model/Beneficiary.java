@@ -1,18 +1,18 @@
 package com.fundtransfer.model;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Beneficiary {
 
     private final String beneficiaryId;
     private final String accountId;
-    private final LocalDate addedOn;
+    private final LocalDateTime addedAt;
 
-    public Beneficiary(String beneficiaryId, String accountId, LocalDate addedOn) {
+    public Beneficiary(String beneficiaryId, String accountId, LocalDateTime addedAt) {
         this.beneficiaryId = Objects.requireNonNull(beneficiaryId, "beneficiaryId");
         this.accountId = Objects.requireNonNull(accountId, "accountId");
-        this.addedOn = Objects.requireNonNull(addedOn, "addedOn");
+        this.addedAt = Objects.requireNonNull(addedAt, "addedAt");
     }
 
     public String getBeneficiaryId() {
@@ -23,7 +23,7 @@ public class Beneficiary {
         return accountId;
     }
 
-    public LocalDate getAddedOn() {
-        return addedOn;
+    public LocalDateTime getAddedAt() {
+        return addedAt;
     }
 }

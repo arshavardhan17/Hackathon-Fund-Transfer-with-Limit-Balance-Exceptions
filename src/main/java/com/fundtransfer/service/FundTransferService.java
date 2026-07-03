@@ -8,6 +8,7 @@ import com.fundtransfer.repository.AccountRegistry;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class FundTransferService {
 
@@ -27,12 +28,13 @@ public class FundTransferService {
         this.creditService = creditService;
     }
 
-    public void transfer(TransferRequest request, LocalDate transferDate) {
+    public void transfer(TransferRequest request, LocalDateTime transferTime) {
         Account source = registry.getAccount(request.getFromAccountId());
         Beneficiary beneficiary = registry.getBeneficiary(request.getBeneficiaryId());
         Account destination = registry.getAccount(beneficiary.getAccountId());
 
-        validator.validate(request, source, beneficiary, transferDate);
+        validator.validate(request, source, beneficiary, transferTime);
+        LocalDate transferDate = transferTime.toLocalDate();
 
         BigDecimal amount = request.getAmount();
         BigDecimal sourceBalanceBefore = source.getBalance();

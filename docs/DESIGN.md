@@ -24,7 +24,7 @@ record daily total
 Config defaults (`TransferConfig`):
 
 - Daily limit: **10,000.00** per account per calendar day
-- Cooling period: **1 day** after beneficiary is added (eligible from `addedOn + 1`)
+- Cooling period: **30 seconds** after beneficiary is added (eligible from `addedAt + 30s`)
 
 ## Atomicity
 

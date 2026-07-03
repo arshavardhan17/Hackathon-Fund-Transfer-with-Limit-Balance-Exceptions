@@ -13,7 +13,7 @@ import com.fundtransfer.service.DailyLimitTracker;
 import com.fundtransfer.service.FundTransferService;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Scanner;
 
 public class FundTransferCli {
@@ -21,17 +21,14 @@ public class FundTransferCli {
     private final AccountRegistry registry;
     private final FundTransferService transferService;
     private final DailyLimitTracker dailyLimitTracker;
-    private final LocalDate today;
 
     public FundTransferCli(
             AccountRegistry registry,
             FundTransferService transferService,
-            DailyLimitTracker dailyLimitTracker,
-            LocalDate today) {
+            DailyLimitTracker dailyLimitTracker) {
         this.registry = registry;
         this.transferService = transferService;
         this.dailyLimitTracker = dailyLimitTracker;
-        this.today = today;
     }
 
     public void run() {
@@ -77,7 +74,7 @@ public class FundTransferCli {
     private void printBanner() {
         System.out.println("Fund Transfer CLI");
         System.out.println("Daily limit: " + TransferConfig.DAILY_TRANSFER_LIMIT
-                + " | Cooling period: " + TransferConfig.COOLING_PERIOD_DAYS + " day(s)");
+                + " | Cooling period: " + TransferConfig.COOLING_PERIOD_SECONDS + " second(s)");
         System.out.println("Type 'help' for commands.\n");
     }
 
@@ -105,10 +102,11 @@ public class FundTransferCli {
         String targetAccountId = parts[2];
         registry.getAccount(targetAccountId);
 
-        Beneficiary beneficiary = new Beneficiary(beneficiaryId, targetAccountId, today);
+        LocalDateTime now = LocalDateTime.now();
+        Beneficiary beneficiary = new Beneficiary(beneficiaryId, targetAccountId, now);
         registry.registerBeneficiary(beneficiary);
 
-        LocalDate eligibleFrom = today.plusDays(TransferConfig.COOLING_PERIOD_DAYS);
+        LocalDateTime eligibleFrom = now.plusSeconds(TransferConfig.COOLING_PERIOD_SECONDS);
         System.out.println("Beneficiary " + beneficiaryId + " added. Eligible from " + eligibleFrom + ".");
     }
 
@@ -118,21 +116,23 @@ public class FundTransferCli {
         String beneficiaryId = parts[2];
         BigDecimal amount = new BigDecimal(parts[3]);
 
+        LocalDateTime now = LocalDateTime.now();
         TransferRequest request = new TransferRequest(fromAccountId, beneficiaryId, amount);
-        transferService.transfer(request, today);
+        transferService.transfer(request, now);
 
         Account beneficiaryAccount = registry.getAccount(registry.getBeneficiary(beneficiaryId).getAccountId());
         System.out.println("Transfer complete.");
         System.out.println("  Source balance: " + registry.getAccount(fromAccountId).getBalance());
         System.out.println("  Destination balance: " + beneficiaryAccount.getBalance());
-        System.out.println("  Transferred today: " + dailyLimitTracker.getTransferredToday(fromAccountId, today));
+        System.out.println("  Transferred today: " + dailyLimitTracker.getTransferredToday(fromAccountId, now.toLocalDate()));
     }
 
     private void handleDaily(String[] parts) {
         requireArgs(parts, 2, "daily <accountId>");
         String accountId = parts[1];
-        BigDecimal transferred = dailyLimitTracker.getTransferredToday(accountId, today);
-        BigDecimal remaining = dailyLimitTracker.remainingLimit(accountId, today, TransferConfig.DAILY_TRANSFER_LIMIT);
+        LocalDateTime now = LocalDateTime.now();
+        BigDecimal transferred = dailyLimitTracker.getTransferredToday(accountId, now.toLocalDate());
+        BigDecimal remaining = dailyLimitTracker.remainingLimit(accountId, now.toLocalDate(), TransferConfig.DAILY_TRANSFER_LIMIT);
         System.out.println(accountId + " — transferred today: " + transferred + ", remaining: " + remaining);
     }
 

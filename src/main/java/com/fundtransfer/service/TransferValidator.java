@@ -10,28 +10,29 @@ import com.fundtransfer.model.TransferRequest;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class TransferValidator {
 
     private final DailyLimitTracker dailyLimitTracker;
     private final BigDecimal dailyLimit;
-    private final int coolingPeriodDays;
+    private final int coolingPeriodSeconds;
 
     public TransferValidator(DailyLimitTracker dailyLimitTracker) {
-        this(dailyLimitTracker, TransferConfig.DAILY_TRANSFER_LIMIT, TransferConfig.COOLING_PERIOD_DAYS);
+        this(dailyLimitTracker, TransferConfig.DAILY_TRANSFER_LIMIT, TransferConfig.COOLING_PERIOD_SECONDS);
     }
 
-    public TransferValidator(DailyLimitTracker dailyLimitTracker, BigDecimal dailyLimit, int coolingPeriodDays) {
+    public TransferValidator(DailyLimitTracker dailyLimitTracker, BigDecimal dailyLimit, int coolingPeriodSeconds) {
         this.dailyLimitTracker = dailyLimitTracker;
         this.dailyLimit = dailyLimit;
-        this.coolingPeriodDays = coolingPeriodDays;
+        this.coolingPeriodSeconds = coolingPeriodSeconds;
     }
 
-    public void validate(TransferRequest request, Account source, Beneficiary beneficiary, LocalDate transferDate) {
+    public void validate(TransferRequest request, Account source, Beneficiary beneficiary, LocalDateTime transferTime) {
         validateAmount(request.getAmount());
         validateBalance(source, request.getAmount());
-        validateDailyLimit(source.getAccountId(), transferDate, request.getAmount());
-        validateCoolingPeriod(beneficiary, transferDate);
+        validateDailyLimit(source.getAccountId(), transferTime.toLocalDate(), request.getAmount());
+        validateCoolingPeriod(beneficiary, transferTime);
     }
 
     public void validateAmount(BigDecimal amount) {
@@ -61,14 +62,14 @@ public class TransferValidator {
         }
     }
 
-    public void validateCoolingPeriod(Beneficiary beneficiary, LocalDate transferDate) {
-        LocalDate eligibleFrom = beneficiary.getAddedOn().plusDays(coolingPeriodDays);
+    public void validateCoolingPeriod(Beneficiary beneficiary, LocalDateTime transferTime) {
+        LocalDateTime eligibleFrom = beneficiary.getAddedAt().plusSeconds(coolingPeriodSeconds);
 
-        if (transferDate.isBefore(eligibleFrom)) {
+        if (transferTime.isBefore(eligibleFrom)) {
             throw new CoolingPeriodException(
                     "Beneficiary " + beneficiary.getBeneficiaryId()
                             + " is still in cooling period. Eligible from: " + eligibleFrom
-                            + ", attempted on: " + transferDate);
+                            + ", attempted at: " + transferTime);
         }
     }
 }
